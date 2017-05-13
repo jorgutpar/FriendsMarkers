@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle (click)="menuToggle()">
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Home</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+
+<ion-content [ngClass]="{'no-scroll': mapRendered}">
+  <div id="map" style="height: :100%"></div>
+</ion-content>
