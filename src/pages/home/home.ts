@@ -15,12 +15,20 @@ import {
  Marker
 } from '@ionic-native/google-maps';
 
-/*class MyMarker : Object {
-    var author: String = ""
-    var body: String = ""
-    var imageURL: String = ""
-    var uid: String = ""
-}*/
+'use strict'; 
+class MyMarker{
+	id : any;
+	title : any;
+	description : any;
+	latLng : any;
+ constructor(id, title, description, latLng){
+    this.id = id ;
+    this.title = title ;
+    this.description = description ;
+    this.latLng = latLng ;
+}
+
+}
 
 @Component({
   selector: 'page-home',
@@ -29,15 +37,16 @@ import {
 export class HomePage {
 	
 
-	map : GoogleMap;	
+	public map : GoogleMap;	
 	public mapRendered: Boolean = false;
   	public location: LatLng;
   	public myLocation: MyLocation;
-	markers: FirebaseListObservable<any>;
+	markerService: FirebaseListObservable<any>;
 	clickableMap : any = true;
 	public database : any;
-
-
+	public showedmarkers = [];
+	public keys : string[];
+	public db : any;
 
 
   constructor(public navCtrl: NavController, 
@@ -45,15 +54,15 @@ export class HomePage {
   	public loadingCtrl : LoadingController,
   	public toastCtrl : ToastController,  
   	public alertCtrl: AlertController, 
-  	public af : AngularFireDatabase, auth: AngularFireAuth, 
+  	public af : AngularFireDatabase, 
+  	public auth: AngularFireAuth, 
   	public actionSheetCtrl : ActionSheetController, 
   	private googleMaps: GoogleMaps) {
     
-
-  	//this.markers = af.list('/markers');
-
-  	console.log("this.markers");
-  	console.log(this.markers);
+  
+  	this.markerService = af.list('/markers');
+  	console.log("this.markerService");
+  	console.log(this.markerService);
   	auth.auth.signInAnonymously();
   	//auth.auth.onAuthStateChanged(user => {} );
 
@@ -74,7 +83,9 @@ ionViewDidLoad(){
 
 
 	this.getMyLocation(); 
-	this.placeMarkers();
+
+
+
 
 }
 
@@ -131,8 +142,15 @@ ionViewDidLoad(){
 	            this.myLocation = location;
 /*	            alert('Latitude: '          + location.latLng.lat          + '\n' +
 	              'Longitude: '         + location.latLng.lng         + '\n');*/
+	            
+/////////////// MAP READY /////////////////////
+
 	            this.showMap();
 	            this.addListeners();
+	            this.placeMarkers();
+
+
+
 	            loader.dismiss();
         	}, (err) => {
                 loader.dismiss();
@@ -146,6 +164,7 @@ ionViewDidLoad(){
             alert(err.error_message);
       });
                 loader.dismiss();
+
 
    }
 
@@ -175,17 +194,35 @@ ionViewDidLoad(){
 		      {
 		        text: 'Save',
 		        handler: data => {
-		          this.markers.push({
+		        	
+		        	
+		        	console.log(data);
+		          this.markerService.push({
 		            title: data.title,
 		            description: data.description,
-        			latLng: latLng,
+        			latLng: latLng
 		          });
-		          this.disableMap();
+
+	
+					let markerOptions : MarkerOptions = {
+						'position': mapClick,
+						'icon':'blue',
+						'title': data.title,
+						'snippet': data.description
+					};
+					this.map.addMarker(markerOptions).then((marker: Marker) => {
+								marker.showInfoWindow();
+					})
 		        }
 		      }
 		    ]
 		  });
+   			prompt.onDidDismiss(() => {
+   				this.disableMap();
+   			})
 		 prompt.present();
+
+
    }
 
 
@@ -198,16 +235,7 @@ ionViewDidLoad(){
 */	
 		this.disableMap();
 		this.setMarkerProperties(mapClick);
-		
-		 let markerOptions : MarkerOptions = {
-        'position': mapClick,
-        'icon':'blue',
-        'title': '',
-    	'snippet': ''
-      };
-		this.map.addMarker(markerOptions).then((marker: Marker) => {
-		marker.showInfoWindow();
-		})
+	
 		}, (err) => {
 		console.log(err);
 		});
@@ -219,100 +247,37 @@ ionViewDidLoad(){
 
 	placeMarkers(){
 
+  	let myMarkers = this.af.database.ref('/markers');
+  	var self = this;
+  	  var markers : MyMarker[];
+	myMarkers.on('child_added', function(snapshot) {
+				console.log('snapshot')
+				console.log(snapshot)
+				console.log('snapshot.val()')
+				console.log(snapshot.val())
 
-		let savedSnapshot : any;
-  	let myMarkers = this.af.database.ref('/markers').once('value').then(function(snapshot) {
-  		savedSnapshot = snapshot;
-  		var username = snapshot.val().username;
-  		var marker = snapshot.val();
-
-		console.log(marker);
-		let position : LatLng;
-		console.log(position);
-		var latlng = marker.latLng.toString().split(/, ?/)
-		console.log(parseFloat(latlng[0]), parseFloat(latlng[1]));
-		position = marker.latLng;
-		console.log(position);
-		console.log(marker.latLng);
-
-			let markerOptions : MarkerOptions = {
-		    'position': position,
-		    'icon':'blue',
-		    'title': marker.title,
-			'snippet': marker.description
-		};
-
-		console.log(markerOptions);
-		this.map.addMarker(markerOptions).then(
-			(marker: Marker) =>
-				marker.addEventListener(GoogleMapsEvent.MARKER_CLICK).subscribe(
-					(mark) => {
-						marker.showInfoWindow();
-					}
-				)
-		);
+				let latlng = snapshot.val().latLng.toString().split(/, ?/)
+    			console.log(parseFloat(latlng[0]), parseFloat(latlng[1]));
+				 let position: LatLng = new LatLng(latlng[0],latlng[1]);
 
 
+				let markerOptions : MarkerOptions = {
+					'position': position,
+					'icon':'blue',
+					'title': snapshot.val().title,
+					'snippet': snapshot.val().description
+				}
+				console.log('Marker Options: ')
+				console.log(markerOptions);
+				self.map.addMarker(markerOptions).then(
+							(marker: Marker) => {
+								marker.showInfoWindow();
+							},
+						 (err) => {
+					console.log(err)
+				});
 });
 
-
-/*	this.database = firebase.database();
-	this.database
-		console.log('placeMarkers()');
-		var ref = this.af.database.ref('/markers');
-		// Attach an asynchronous callback to read the data at our posts reference
-		ref.on("value", function(snapshot) {
-		  console.log(snapshot.val());
-		}, function (errorObject) {
-		  console.log("The read failed: " + errorObject.code);
-		});
-
-		ref.once("value", function(data) {
-	  		console.log(data.exportVal())
-	  		console.log(data.latLng);
-		}, function (errorObject) {
-		  console.log("The read failed: " + errorObject.code);
-		});*/
-/*  		this.markers = this.af.list('/markers');
-  		this.markers.
-		for (let marker in this.markers) {
-			marker.
-			let markeropts : MarkerOptions = marker;
-			console.log(markeropts);
-			console.log(marker);
-
-		}*/
-
-
-/*		  this.markers.forEach(
-		  	marker => {
-	            console.log(marker);
-	            let position : LatLng;
-	            console.log(position);
-	            var latlng = marker.latLng.toString().split(/, ?/)
-    			console.log(parseFloat(latlng[0]), parseFloat(latlng[1]));
-	            position = marker.latLng;
-	            console.log(position);
-	            console.log(marker.latLng);
-
-	          	let markerOptions : MarkerOptions = {
-			        'position': position,
-			        'icon':'blue',
-			        'title': marker.title,
-			    	'snippet': marker.description
-			    };
-
-			    console.log(markerOptions);
-				this.map.addMarker(markerOptions).then(
-					(marker: Marker) =>
-						marker.addEventListener(GoogleMapsEvent.MARKER_CLICK).subscribe(
-							(mark) => {
-								marker.showInfoWindow();
-							}
-			    		)
-			    );
-			}
-		);*/
 
 	}
 }
