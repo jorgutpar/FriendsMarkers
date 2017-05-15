@@ -1,0 +1,35 @@
+<!--
+  Generated template for the Login page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+<!--   <div> {{ user.userId }} </div>
+  <img src="{{ (user | async)?.imageUrl }}" />
+  <span>{{ (user | async)?.displayName }}</span>
+  <span>{{ (user | async)?.givenName }}</span>
+  <span>{{ (user | async)?.email }}</span> -->
+
+<div> {{ (data | async)?.userId }} </div>
+  <img src="{{ (data | async)?.imageUrl }}" />
+  <span>{{ (data | async)?.displayName }}</span>
+  <span>{{ (data | async)?.givenName }}</span>
+  <span>{{ (data | async)?.email }}</span>
+
+
+  <button (click)="login()">Login</button>
+  <button (click)="logout()">Logout</button>
+</ion-content>

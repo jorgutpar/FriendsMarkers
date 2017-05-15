@@ -111,3 +111,4 @@ ionic plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="AIzaS
 
 
 
+keytool -exportcert -list -v -alias androiddebugkey -keystore ~./.android/debug.keystore

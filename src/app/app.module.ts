@@ -1,10 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { GooglePlus } from '@ionic-native/google-plus';
 
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { Login } from '../pages/login/login';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -25,18 +27,20 @@ export const firebaseConfig = {
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    Login
   ],
   imports: [
     BrowserModule,
-    AngularFireModule.initializeApp(firebaseConfig),  
+    AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     IonicModule.forRoot(MyApp),
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    Login
     
   ],
   providers: [
@@ -44,6 +48,7 @@ export const firebaseConfig = {
     SplashScreen,
     AngularFireAuthProvider,
     GoogleMaps,
+    GooglePlus,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

@@ -42,12 +42,14 @@ export class HomePage {
   	public location: LatLng;
   	public myLocation: MyLocation;
 	markerService: FirebaseListObservable<any>;
+	mapsService: FirebaseListObservable<any>;
 	clickableMap : any = true;
 	public database : any;
 	public showedmarkers = [];
 	public keys : string[];
 	public db : any;
 
+	public mapName : string = "Global Map";
 
   constructor(public navCtrl: NavController, 
   	public platform: Platform, 
@@ -61,6 +63,7 @@ export class HomePage {
     
   
   	this.markerService = af.list('/markers');
+  	this.mapsService = af.list('/maps');
   	console.log("this.markerService");
   	console.log(this.markerService);
   	auth.auth.signInAnonymously();
@@ -71,11 +74,57 @@ export class HomePage {
   }
 
 
-
+menuShowing(){
+	this.disableMap();
+}
 
 disableMap(){
-	this.clickableMap = !this.clickableMap;
-	this.map.setClickable(this.clickableMap);
+	this.map.setClickable(false);
+}
+enableMap(){
+	this.map.setClickable(true);
+}
+
+isAuthenticated(){
+
+}
+
+
+addMap(){
+	this.disableMap();
+   	console.log("Adding Map ...");
+   	let prompt = this.alertCtrl.create({
+		    title: 'Name',
+		    message: "Enter a name for the new map ",
+		    inputs: [
+		      {
+		        name: 'name',
+		        placeholder: 'Name'
+		      },{
+		        name: 'description',
+		        placeholder: 'Description'
+		      }
+		    ],
+		    buttons: [
+		      {
+		        text: 'Cancel',
+		        handler: data => { console.log('Cancel clicked');     }
+		      },
+		      {
+		        text: 'Save',
+		        handler: data => {
+		        	console.log(data);
+		          	this.mapsService.push({	name: data.name,
+			          						description: data.description
+		           							//owner: this.auth.auth.id
+   		          	});
+   		          	this.mapName = data.name;
+		        }
+		      }
+		    ]
+		  });
+		prompt.onDidDismiss(() => { this.enableMap();	})
+		prompt.present();
 }
 
 
@@ -83,9 +132,6 @@ ionViewDidLoad(){
 
 
 	this.getMyLocation(); 
-
-
-
 
 }
 
@@ -119,7 +165,6 @@ ionViewDidLoad(){
         'compass': true,
         'myLocationButton': true,
         'indoorPicker': true,
-        'zoom': true,
       },
       'gestures': {
         'scroll': true,
@@ -169,10 +214,9 @@ ionViewDidLoad(){
    }
 
    setMarkerProperties(mapClick){
+   	this.disableMap();
    	let latLng = mapClick+"".toString();
-
-
-   		let prompt = this.alertCtrl.create({
+	let prompt = this.alertCtrl.create({
 		    title: 'Name',
 		    message: "Enter a name for this place ",
 		    inputs: [
@@ -213,17 +257,15 @@ ionViewDidLoad(){
 					this.map.addMarker(markerOptions).then((marker: Marker) => {
 								marker.showInfoWindow();
 					})
+					this.enableMap();
 		        }
 		      }
 		    ]
 		  });
-   			prompt.onDidDismiss(() => {
-   				this.disableMap();
-   			})
-		 prompt.present();
-
-
+		prompt.onDidDismiss(() => { this.enableMap();	})
+		prompt.present();
    }
+
 
 
   addListeners(){
@@ -233,7 +275,6 @@ ionViewDidLoad(){
       console.log(mapClick);
 /*      let latLng = mapClick +"".split(',');
 */	
-		this.disableMap();
 		this.setMarkerProperties(mapClick);
 	
 		}, (err) => {

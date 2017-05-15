@@ -1,14 +1,22 @@
 <ion-header>
   <ion-navbar>
-    <button ion-button menuToggle (click)="disableMap()">
+    <button ion-button menuToggle (click)="menuShowing()" ionClose="enableMap()">
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Home</ion-title>
+    <ion-title>{{mapName}}</ion-title>
   </ion-navbar>
 </ion-header>
 
 
 
 <ion-content [ngClass]="{'no-scroll': mapRendered}">
-  <div id="map" style="height: :100%"></div>
+  <div id="map" style="height: :100%">
+
+
+<button ion-button ion-plus-circled icon-left bottom id='addMap' (click)="addMap()">
+  <ion-icon name="md-add-circle">Add Map</ion-icon>
+</button>
+
+  </div>
+
 </ion-content>
