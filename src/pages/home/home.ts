@@ -45,7 +45,7 @@ export class HomePage {
 	mapsService: FirebaseListObservable<any>;
 	clickableMap : any = true;
 	public database : any;
-	public showedmarkers = [];
+	//public showedmarkers = [];
 	public keys : string[];
 	public db : any;
 
@@ -83,10 +83,6 @@ disableMap(){
 }
 enableMap(){
 	this.map.setClickable(true);
-}
-
-isAuthenticated(){
-
 }
 
 
@@ -146,9 +142,6 @@ ionViewDidLoad(){
       zoom: 15
     };
     this.map.moveCamera(position);
-    let markerOptions: MarkerOptions = {
-      'position': this.myLocation.latLng
-    };
     let toast = this.toastCtrl.create({
       message: 'Location found, search for anything',
       position: 'bottom',
@@ -290,7 +283,6 @@ ionViewDidLoad(){
 
   	let myMarkers = this.af.database.ref('/markers');
   	var self = this;
-  	  var markers : MyMarker[];
 	myMarkers.on('child_added', function(snapshot) {
 				console.log('snapshot')
 				console.log(snapshot)

@@ -110,5 +110,33 @@ ionic plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="AIzaS
 
 
 
+$ PATH=$PATH:$JAVA_HOME"\bin"
 
-keytool -exportcert -list -v -alias androiddebugkey -keystore ~./.android/debug.keystore
+
+keytool -exportcert -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore
+
+Introduzca la contrase▒a del almac▒n de claves:  android
+Nombre de Alias: androiddebugkey
+Fecha de Creaci▒n: 21-abr-2017
+Tipo de Entrada: PrivateKeyEntry
+Longitud de la Cadena de Certificado: 1
+Certificado[1]:
+Propietario: C=US, O=Android, CN=Android Debug
+Emisor: C=US, O=Android, CN=Android Debug
+N▒mero de serie: 1
+V▒lido desde: Fri Apr 21 11:45:22 CEST 2017 hasta: Sun Apr 14 11:45:22 CEST 2047
+Huellas digitales del Certificado:
+         MD5: AC:51:14:97:45:C6:8D:F5:20:3C:D9:5C:10:1D:A5:DA
+         SHA1: 40:4F:19:AC:ED:61:92:38:C8:B0:0A:DA:CC:03:FF:D3:61:A3:25:01
+         SHA256: E0:9D:5A:89:40:0B:BB:DF:83:DD:79:AC:34:C9:87:38:55:14:E8:15:A4:E4:EC:92:36:3D:AB:03:47:B3:67:08
+         Nombre del Algoritmo de Firma: SHA1withRSA
+         Versi▒n: 1
+
+
+
+
+
+keytool -exportcert -alias androiddebugkey -keystore ~/.android\debug.keystore | openssl sha1 -binary | openssl base64
+
+
+cordova plugin add cordova-plugin-googleplus --save --variable REVERSED_CLIENT_ID=563992372693-9nshfv0ej44nm6guoqur7rks56ctop3d.apps.googleusercontent.com

@@ -14,16 +14,35 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthProvider } from 'angularfire2/auth';
-import { GoogleMaps }  from '@ionic-native/google-maps'
+import { GoogleMaps }  from '@ionic-native/google-maps';
+import { Facebook } from '@ionic-native/facebook'
+import { Maps } from '../providers/maps';
+import { Markers } from '../providers/markers';
+
+
+
+
+
+
+
+
+
+
+
+
+
 // AF2 Settings
 export const firebaseConfig = {
     apiKey: "AIzaSyBoAEdFJDszBlYxS9w8VW5QyZT8k0U52Mk",
-    authDomain: "friendsmarkers-5bff9.firebaseapp.com",
+    //authDomain: "friendsmarkers-5bff9.firebaseapp.com",
     databaseURL: "https://friendsmarkers-5bff9.firebaseio.com",
     projectId: "friendsmarkers-5bff9",
     storageBucket: "friendsmarkers-5bff9.appspot.com",
     messagingSenderId: "563992372693"
 };
+
+
+
 @NgModule({
   declarations: [
     MyApp,
@@ -49,6 +68,9 @@ export const firebaseConfig = {
     AngularFireAuthProvider,
     GoogleMaps,
     GooglePlus,
+    Facebook,
+    Markers,
+    Maps,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

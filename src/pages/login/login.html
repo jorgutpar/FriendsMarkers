@@ -11,25 +11,103 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Login</ion-title>
+    <ion-title>Log In</ion-title>
   </ion-navbar>
 </ion-header>
 
 
 <ion-content padding>
-<!--   <div> {{ user.userId }} </div>
-  <img src="{{ (user | async)?.imageUrl }}" />
-  <span>{{ (user | async)?.displayName }}</span>
-  <span>{{ (user | async)?.givenName }}</span>
-  <span>{{ (user | async)?.email }}</span> -->
 
-<div> {{ (data | async)?.userId }} </div>
-  <img src="{{ (data | async)?.imageUrl }}" />
-  <span>{{ (data | async)?.displayName }}</span>
-  <span>{{ (data | async)?.givenName }}</span>
-  <span>{{ (data | async)?.email }}</span>
+<div *ngIf="userProfile">
+  <ion-item>
+    <ion-avatar item-left>
+      <img [src]="userProfile.photoURL">
+    </ion-avatar>
+    <h2>{{ userProfile.displayName }}</h2>
+    <h3>{{ userProfile.email }}</h3>
+  </ion-item>
+
+<ion-list>
+  <button ion-item (click)="optionSelected('mymaps')" >
+      <ion-icon name='compass' item-start></ion-icon>
+      My Maps
+  </button>
+  <button ion-item (click)="optionSelected('mymarkers')" >
+      <ion-icon name='flag' item-start></ion-icon>
+      My Markers
+  </button>
+</ion-list>
+</div>
+<!-- 
+<ion-list>
+  <button ion-item *ngFor="let option of options"  (click)="optionSelected(option)">
+    <ion-icon name='planet' item-start ></ion-icon>
+      My Maps
+    </ion-item>
+</ion-list> -->
+ 
+<!-- </div>  -->
+    <button ion-button block color="danger"  id="login-button" (click)="loginGoogle()" *ngIf="!userProfile" >
+       <ion-icon name="logo-googleplus" item-start></ion-icon>
+       <span id="separeted-label">Google Login</span>
+    </button>
+    <button ion-button block color="default"    id="login-button" (click)="loginFacebook()" *ngIf="!userProfile">
+        <ion-icon name="logo-facebook" item-start></ion-icon>
+        <span id="separeted-label">Facebook login</span>
+    </button>
+<!-- <ion-grid>
+  <ion-row row-12>
+
+      <span item-left><button ion-button block color="danger" (click)="loginGoogle()">
+        <ion-icon name="logo-googleplus"></ion-icon>
+        Login with Google
+    </button></span>
+</ion-row>
+<ion-row row-4>
+
+ 
+<span item-left>
+    <button ion-button block color="default" (click)="loginFacebook()">
+      <ion-icon name="logo-facebook"></ion-icon>
+      <div>Login with Facebook</div>
+    </button>
+    </span>
+    </ion-row>
+
+</ion-grid> -->
 
 
-  <button (click)="login()">Login</button>
-  <button (click)="logout()">Logout</button>
+<!-- <ion-grid id="login-grid">
+  <ion-row row-3>
+    <ion-col col-12>
+    <ion-item>
+      <button ion-button block color="danger" (click)="loginGoogle()">
+          <ion-icon name="logo-googleplus"></ion-icon>
+          Login with Google
+      </button>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+  <ion-row row-3>
+    <ion-col col-12>
+    <button ion-button block color="default" (click)="loginFacebook()">
+      <ion-icon name="logo-facebook"></ion-icon>
+      <div>Login with Facebook</div>
+    </button>
+    </ion-col>
+  </ion-row>
+</ion-grid> -->
+
+
+
+
+
+
+  <ion-card *ngIf="userProfile">
+  <button ion-button block color="dark"  style="width:90% !important; margin-bottom: 5% !important;" (click)="logout()">
+    <ion-icon name="exit" item-start></ion-icon>
+    <span id="separeted-label">Logout</span>
+  </button>
+</ion-card> 
+
 </ion-content>

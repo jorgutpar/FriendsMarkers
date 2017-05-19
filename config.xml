@@ -88,4 +88,11 @@
     <plugin name="cordova-plugin-browsertab" spec="~0.2.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="~1.7.1" />
     <plugin name="cordova-plugin-buildinfo" spec="~1.1.0" />
+    <plugin name="cordova-plugin-facebook4" spec="~1.8.0">
+        <variable name="APP_ID" value="1687036631599820" />
+        <variable name="APP_NAME" value="FriendsMarkers" />
+    </plugin>
+    <plugin name="cordova-plugin-googleplus" spec="~5.1.1">
+        <variable name="REVERSED_CLIENT_ID" value="563992372693-9nshfv0ej44nm6guoqur7rks56ctop3d.apps.googleusercontent.com" />
+    </plugin>
 </widget>
