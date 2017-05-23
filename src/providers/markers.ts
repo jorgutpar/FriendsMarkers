@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
+import firebase from 'firebase';
+import { AuthProvider } from './auth'
 
 /*
   Generated class for the Markers provider.
@@ -11,12 +12,13 @@ import { AngularFireAuth } from 'angularfire2/auth';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class Markers {
+export class MarkersProvider {
 
 
 	markers : any;
 
-  constructor(public http: Http) {
+  constructor(public af : AngularFireDatabase, 
+    public auth: AngularFireAuth) {
     console.log('Hello Markers Provider');
   }
 
@@ -34,6 +36,15 @@ export class Markers {
   }
 
   getItem(id){
+
+  }
+
+  loadMarkersFromMap(mapUID){
+    
+  }
+
+
+  addMarkerToMap(marker, mapUID){
 
   }
 

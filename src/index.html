@@ -21,9 +21,21 @@
         .catch(err => console.error('Error', err));
     }
   </script>-->
-
+  <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
   <link href="build/main.css" rel="stylesheet">
-
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+    apiKey: "AIzaSyBoAEdFJDszBlYxS9w8VW5QyZT8k0U52Mk",
+    //authDomain: "friendsmarkers-5bff9.firebaseapp.com",
+    databaseURL: "https://friendsmarkers-5bff9.firebaseio.com",
+    projectId: "friendsmarkers-5bff9",
+    storageBucket: "friendsmarkers-5bff9.appspot.com",
+    messagingSenderId: "563992372693"
+    };
+    firebase.initializeApp(config);
+  </script>
 
 </head>
 <body>

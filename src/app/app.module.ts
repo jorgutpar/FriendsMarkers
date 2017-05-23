@@ -7,6 +7,7 @@ import { GooglePlus } from '@ionic-native/google-plus';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { Login } from '../pages/login/login';
+import { ListPage } from '../pages/list/list';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -16,8 +17,10 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthProvider } from 'angularfire2/auth';
 import { GoogleMaps }  from '@ionic-native/google-maps';
 import { Facebook } from '@ionic-native/facebook'
-import { Maps } from '../providers/maps';
-import { Markers } from '../providers/markers';
+import { MapsProvider } from '../providers/maps';
+import { MarkersProvider } from '../providers/markers';
+import { AuthProvider } from '../providers/auth';
+import * as firebase from 'firebase'; 
 
 
 
@@ -47,7 +50,8 @@ export const firebaseConfig = {
   declarations: [
     MyApp,
     HomePage,
-    Login
+    Login,
+    ListPage
   ],
   imports: [
     BrowserModule,
@@ -59,7 +63,8 @@ export const firebaseConfig = {
   entryComponents: [
     MyApp,
     HomePage,
-    Login
+    Login,
+    ListPage
     
   ],
   providers: [
@@ -69,8 +74,9 @@ export const firebaseConfig = {
     GoogleMaps,
     GooglePlus,
     Facebook,
-    Markers,
-    Maps,
+    MarkersProvider,
+    MapsProvider,
+    AuthProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

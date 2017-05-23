@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import firebase from 'firebase';
-
+import { AuthProvider } from './auth'
 /*
   Generated class for the Maps provider.
 
@@ -12,41 +11,33 @@ import firebase from 'firebase';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class Maps {
+export class MapsProvider {
 
-	mapsService: FirebaseListObservable<any>;
-	maps : any;
-
-  constructor(public http: Http,
-  	public af : AngularFireDatabase, 
-  	public auth: AngularFireAuth ) {
-    	console.log('Hello Maps Provider');
-    	//this.mapsService = af.list('/maps');
+  public currentUser : any;
+  public mapsRef : any;
+  constructor(public af : AngularFireDatabase, 
+  	public auth: AngularFireAuth,
+    public authProvider : AuthProvider ) {
+    	
+      this.mapsRef = this.af.database.ref('/maps');
+      this.currentUser = authProvider.getCurrentUser();
+      console.log('Maps Provider | Constructor ');
+      console.log('Maps Provider | this.currentUser ', this.currentUser);
   }
 
   load(){
-  	var user = firebase.auth().currentUser;
-  	let myMaps = this.af.database.ref('/users/'+user.email+'/maps');
-  	var self = this;
-	myMaps.on('child_added', snapshot => {
-				console.log('New child_added to maps | Snapshot --> ', snapshot);
-				console.log('Snapshot.val() -->', snapshot.val());
-	          	this.mapsService.push({	
-	          		name: snapshot.name,
-		          	description: snapshot.description,
-	           		owner: self.user.email
-		         }).catch(error => {
-		         	console.log("Error inserting new map error");
-		         });
-	});
   }
 
 
   addItem(item){
-	
-  	//console.log("user", user);
-
-
+    console.log("Adding new map", item)
+      this.mapsRef.push({  
+        name: item.name,
+        description: item.description,
+        owner: this.currentUser.email
+     }).catch(error => {
+         console.log("Error inserting new map", error);
+     });
 }
 
   editItem(){
@@ -54,8 +45,48 @@ export class Maps {
   }
 
   getItem(id){
+    let myMaps = this.af.database.ref('/users/'+this.currentUser.email+'/maps');
 
   }
+
+
+getMapsFromUser(alert, loader){
+  loader.present();
+  console.log('Getting maps from user', this.authProvider.getCurrentUser());
+  let myMaps = this.af.database.ref('/users/'+this.authProvider.getCurrentUser().uid+'/maps');
+  let maps = this.af.database.ref('/maps/');
+  myMaps.once('value', userMaps => {
+    for (var key in userMaps.val() ){
+      console.log(key);
+      maps.child(key).once('value', map => {
+        console.log(map);
+        console.log(map.val());
+        console.log(map.val().name);
+        alert.addInput({
+          type: 'radio',
+          label: map.val().name,
+          value: map.key,
+        });
+      })
+    }
+  });
+  loader.dismiss();
+}
+
+
+addMapToUser(map){
+  this.mapsRef.push({  name: map.name,
+              description: map.description,
+              owner: this.authProvider.getCurrentUser().uid
+  }).then( newmap => {
+      console.log('New map with key ', newmap.key);
+      console.log('Current user id ', this.authProvider.getCurrentUser().uid);
+      let userMaps = this.af.database.ref('/users/'+this.authProvider.getCurrentUser().uid+'/maps');
+      let mapsUsers = this.af.database.ref('/maps/'+ newmap.key +'/users');
+      mapsUsers.child(this.authProvider.getCurrentUser().uid).set(true);
+      userMaps.child(newmap.key).set(true);
+  });
+}
 
 
 }
