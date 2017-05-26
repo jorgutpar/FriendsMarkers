@@ -4,6 +4,9 @@ import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/databa
 import { AngularFireAuth } from 'angularfire2/auth';
 import firebase from 'firebase';
 import { AuthProvider } from './auth'
+import { HomePage } from '../pages/home/home';
+import { GoogleMap, GoogleMapsEvent } from '@ionic-native/google-maps';
+
 /*
   Generated class for the Maps provider.
 
@@ -15,14 +18,32 @@ export class MapsProvider {
 
   public currentUser : any;
   public mapsRef : any;
+  public map : GoogleMap;
+  public static mapSaved : GoogleMap;
+  public static markersArray = [];
+  public homePage : HomePage;
+
+
   constructor(public af : AngularFireDatabase, 
   	public auth: AngularFireAuth,
     public authProvider : AuthProvider ) {
     	
       this.mapsRef = this.af.database.ref('/maps');
       this.currentUser = authProvider.getCurrentUser();
-      console.log('Maps Provider | Constructor ');
-      console.log('Maps Provider | this.currentUser ', this.currentUser);
+      console.log('Maps Provider | Constructor | this.currentUser ', this.currentUser);
+      this.map = new GoogleMap('map');
+
+
+
+      this.map.one(GoogleMapsEvent.MAP_READY).then(callback => {
+        console.log('Maps Provider | Constructor | MAP_READY', this.map);
+        console.log('Maps Provider | Constructor | callback', callback);
+        MapsProvider.mapSaved = this.map;
+      });
+
+
+
+
   }
 
   load(){
@@ -50,6 +71,15 @@ export class MapsProvider {
   }
 
 
+getNameFromMapUID(mapSelectedUID, homePage){
+  let map = this.af.database.ref('/maps/' + mapSelectedUID);
+  map.once('value', data => {
+    console.log('Maps Provider | getNameFromMapUID(' + mapSelectedUID + ') -->', data.val().name);
+    homePage.mapName = data.val().name;
+  })
+}
+
+
 getMapsFromUser(alert, loader){
   loader.present();
   console.log('Getting maps from user', this.authProvider.getCurrentUser());
@@ -57,11 +87,7 @@ getMapsFromUser(alert, loader){
   let maps = this.af.database.ref('/maps/');
   myMaps.once('value', userMaps => {
     for (var key in userMaps.val() ){
-      console.log(key);
       maps.child(key).once('value', map => {
-        console.log(map);
-        console.log(map.val());
-        console.log(map.val().name);
         alert.addInput({
           type: 'radio',
           label: map.val().name,

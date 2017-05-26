@@ -10,30 +10,49 @@
 
 
 <ion-content [ngClass]="{'no-scroll': mapRendered}" >
-  <div id="map" style="height: :100%" style="z-index: -4 !important;"> 
+<div id="map" style="height: :100%" style="z-index: 0 !important;">
+  
 
 
-<!-- <button ion-button ion-plus-circled icon-left bottom id='addMap' (click)="promptAddMap()" *ngIf="userProfile" >
-  <ion-icon name="md-add-circle">Add Map</ion-icon>
-</button> -->
-<ion-fab left bottom style="z-index: 104 !important;" *ngIf="userProfile" #fab>
-  <button ion-fab color="blue" (click)="disableMap()">
-    <ion-icon name="arrow-dropup"  style="z-index: 104 !important;"></ion-icon>
+<!-- <ion-fab left bottom style="z-index: 104 !important;" *ngIf="userProfile" #fab>
+  <button ion-fab color="blue" (click)='fabController($event, fab, fabButton)' #fabButton>
+          <ion-icon name="arrow-dropup"  style="z-index: 104 !important;"></ion-icon>
   </button>
   <ion-fab-list side="top">
-    <button ion-fab id='add_map' color="blue" (click)="promptAddMap($event, fab)" style="z-index: 104 !important;">
-      <ion-icon name="add"></ion-icon>
-    </button>
-    <button ion-fab color="blue" (click)="selectMap(fab)" style="z-index: 104 !important;">
-      <ion-icon name="compass"></ion-icon>
-    </button>
-</ion-fab-list>
-</ion-fab>
+      <button ion-fab id='add_map' color="blue" (click)="promptAddMap($event, fab)" style="z-index: 104 !important;">
+           <ion-icon name="add"></ion-icon>
+      </button>
+      <button ion-fab color="blue" (click)="selectMap(fab)" style="z-index: 104 !important;">
+           <ion-icon name="compass"></ion-icon>
+      </button>
+  </ion-fab-list>
+</ion-fab> -->
+<!-- <ion-fab>
+  <button ion-fab color="blue" #fabButton>
+          <ion-icon name="arrow-dropup"  style="z-index: 104 !important;"></ion-icon>
+  </button>
+</ion-fab> -->
+
+      <button ion-fab id='add_map' color="blue" (click)="promptAddMap()" class="mapButton">
+           <ion-icon name="add"></ion-icon>
+      </button>
+      <button ion-fab color="blue" (click)="selectMap()" style="z-index: 104 !important;"  class="mapButton">
+           <ion-icon name="compass"></ion-icon>
+      </button>
+
+
+
+
+
+</div>
 
 
 
 
 
 
-  </div>
+
+
+
+
 </ion-content>

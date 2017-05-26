@@ -1,5 +1,19 @@
-ion-app._gmaps_cdv_ .nav-decor {
+
+.testing-div {
+	position: relative;
 	height: 100% !important;
+}
+
+.mapButton {
+	margin-bottom: 8px !important;
+	z-index: 104 !important; 
+	top: 77% !important; 
+	left: 2% !important;
+}
+
+scroll-content _gmaps_cdv_ .nav-decor {
+	height: 100% !important;
+	display:none !important;
 	background-color: rgba(0, 0, 0, 0) !important;
 }
 
@@ -16,7 +30,6 @@ _gmaps_cdv_ #map{
 home-page {
 	text-align: center;
 	#map {
-		height: 100% !important;
 		z-index: 9999;
 	}
 }
@@ -36,9 +49,5 @@ home-page {
 .button-md {
 	position: absolute !important;
 	bottom: 0% !important;
-}
-
-.addMap {
-	background-color: #275C8D !important;
 }
 

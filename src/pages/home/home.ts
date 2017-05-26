@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { NavController, NavParams, Platform, FabContainer } from 'ionic-angular';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { NavController, NavParams, Platform, FabContainer, FabButton } from 'ionic-angular';
 import { AlertController, LoadingController, ActionSheetController, ToastController } from 'ionic-angular';
 import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -7,22 +7,10 @@ import { MapsProvider } from '../../providers/maps';
 import { MarkersProvider } from '../../providers/markers';
 import { AuthProvider } from '../../providers/auth';
 
-import { GoogleMaps, GoogleMap, GoogleMapsEvent, LatLng, CameraPosition, MarkerOptions, MyLocation, Marker} from '@ionic-native/google-maps';
+import { GoogleMaps, GoogleMap, GoogleMapsEvent, LatLng, CameraPosition, MarkerOptions, MyLocation, Marker, GroundOverlay } from '@ionic-native/google-maps';
 
-'use strict'; 
-class MyMarker{
-	id : any;
-	title : any;
-	description : any;
-	latLng : any;
- constructor(id, title, description, latLng){
-    this.id = id ;
-    this.title = title ;
-    this.description = description ;
-    this.latLng = latLng ;
-}
 
-}
+
 
 @Component({
   selector: 'page-home',
@@ -30,23 +18,24 @@ class MyMarker{
 })
 export class HomePage {
 	
-
 	public map : GoogleMap;	
 	public mapRendered: Boolean = false;
-  	public location: LatLng;
-  	public myLocation: MyLocation;
+  public location: LatLng;
+  public myLocation: MyLocation;
 	markerService: any;
-	mapsService: FirebaseListObservable<any>;
 	clickableMap : any = true;
 	public database : any;
-	//public showedmarkers = [];
 	public keys : string[];
 	public db : any;
-	public mapName : string = "Global Map";
   	public user;
   	public userProfile : any = null;
   	public fabContainer : FabContainer;
+    public fabButton : FabButton
+    public overlay : GroundOverlay;
 
+  public static mapSaved : any;
+  	public mapUID : any
+	public mapName : string = "Public Map";
 
   constructor(public navCtrl: NavController, 
   	public navParams : NavParams,
@@ -61,41 +50,103 @@ export class HomePage {
   	public markersProvider : MarkersProvider,
   	public authProvider : AuthProvider,
   	public mapsProvider : MapsProvider) {
-    	
 
-    	if(navParams.data){
-    		let mapSelected = navParams.data;
-    		this.loadMarkersFromMap(mapSelected.id)	
+    console.log('HomePage | Constructor | navParams.data', navParams.data)
+    	if(navParams.data.id){
+    		this.loadMarkersFromMap(navParams.data.id)	
     	} else {
-    		this.markerService = this.af.database.ref('/markers/');
+        this.mapUID =  'public';
+    		this.loadPublicMarkers();	
     	}
     	this.userProfile = this.authProvider.getCurrentUser();
   }
 
 
+ionViewDidLoad(){ 
 
-loadMarkersFromMap(mapSelectedID){
-	console.log("Loading markers from map id ", mapSelectedID);
+  console.log('HomePage | ionViewDidLoad');
+  console.log('HomePage | ionViewDidLoad | this.map', this.map);
+
+  if(!this.map){
+      console.log('HomePage | ionViewDidLoad | this.map is null!! ');
+      MapsProvider.mapSaved.setDiv(document.getElementById('map'));
+      MapsProvider.mapSaved.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((mapClick) => {
+        console.log("Map clicked on : ", mapClick);
+        this.promptAddMarker(mapClick);
+      }, (err) => {
+        console.log(err);
+      });
+      
+      this.map = MapsProvider.mapSaved;      
+      this.map.setOptions({ 'backgroundColor': 'white',  'controls': { 'compass': true,'myLocationButton': true,'indoorPicker': true, }, 'gestures': { 'scroll': true, 'tilt': true,  'rotate': true,  'zoom': true  }  });
+      this.getMyLocation(); 
+      //this.addListeners();
+  } else {
+    console.log('HomePage | ionViewDidLoad | Map already initialized  ');
+  }
+
+}
+
+
+clearMarkers(){
+  for ( var i = 0; i < MapsProvider.markersArray.length; i++){
+    let marker : Marker = MapsProvider.markersArray[i];
+    marker.remove();
+  }
+  MapsProvider.markersArray.length = 0;
 }
 
 
 
-selectMap(fab : FabContainer){
-	fab.close();
+
+
+
+loadPublicMarkers(){
+  console.log('HomePage | loadPublicMarkers init')
+  this.markersProvider.getPublicMarkers(this.map);
+}
+
+
+
+
+loadMarkersFromMap(mapSelectedUID){
+	this.disableMap();
+  this.clearMarkers();
+	this.mapUID = mapSelectedUID;
+	var loader = this.loadingCtrl.create({
+    content: "Loading markers ... please wait."
+  });
+  loader.onDidDismiss(() => this.enableMap());
+	this.mapsProvider.getNameFromMapUID(mapSelectedUID, this);
+	console.log("Loading markers from map id ", mapSelectedUID);
+	this.markersProvider.getMarkersFromMap(mapSelectedUID, loader);
+  this.addListeners();
+}
+
+
+
+selectMap(){
+  this.disableMap();
 	let alert = this.alertCtrl.create();
-    alert.setTitle('Available Maps');
+  alert.setTitle('Available Maps');
+  alert.onDidDismiss(() => this.enableMap());
 	var loader = this.loadingCtrl.create();
-
-    this.mapsProvider.getMapsFromUser(alert, loader);
-
-    alert.addButton('Cancel');
-    alert.addButton({
-      text: 'OK',
-      handler: data => {
-        console.log('Map UID choosed ', data)
+ 	alert.addInput({ type: 'radio', label: 'Public map', value: 'public', });
+  this.mapsProvider.getMapsFromUser(alert, loader);
+  alert.addButton('Cancel');
+  alert.addButton({ text: 'OK',
+    handler: data => {
+      console.log('Data --> ', data);
+      if( data == 'public' ){
+      	console.log('Load public map', data);
+        this.mapName = "Public map"
+      } else {
+      	console.log('Loading map with id ', data);
+      	this.loadMarkersFromMap(data);
       }
-    });
-    alert.present();
+    }
+  });
+  alert.present();
 }
 
 
@@ -106,15 +157,33 @@ menuShowing(){
 }
 
 disableMap(){
+	this.clickableMap = false;
+  console.log("Map clickable? ",this.clickableMap)
 	this.map.setClickable(false);
 }
 enableMap(){
+	this.clickableMap = true;
+  console.log("Map clickable? ",this.clickableMap)
 	this.map.setClickable(true);
 }
 
 
-promptAddMap(event, fab : FabContainer){
-	fab.close();
+toggleMapClick(){
+  this.clickableMap = !this.clickableMap
+  console.log("Map clickable? ",this.clickableMap)
+	this.map.setClickable(this.clickableMap);
+}
+
+
+fabController(ev, fab : FabContainer, fabButton : FabButton){
+	//this.toggleMapClick();
+  console.log(fab);
+  console.log(fabButton);
+
+}
+
+
+promptAddMap(){
 	this.disableMap();
    	console.log("Adding Map ...");
    	let prompt = this.alertCtrl.create({
@@ -125,6 +194,9 @@ promptAddMap(event, fab : FabContainer){
 		    buttons: [{text: 'Cancel', handler: data => { console.log('promptAddMap | Cancel clicked');}},
 		      	{ text: 'Save', handler: (data) => { this.addMapToUser(data); } } ]
 	});
+
+
+
 	prompt.onDidDismiss(() => { this.enableMap();	})
 	prompt.present();
 }
@@ -133,11 +205,6 @@ promptAddMap(event, fab : FabContainer){
 addMapToUser(map){
 	console.log('Add map to user',map);
 	this.mapsProvider.addMapToUser(map);
-}
-
-ionViewDidLoad(){ 
-	this.getMyLocation(); 
-	this.user = firebase.auth().currentUser;
 }
 
 
@@ -158,102 +225,39 @@ ionViewDidLoad(){
 
 
    getMyLocation(){
-    this.map = new GoogleMap('map', {
-        'backgroundColor': 'white',
-        'controls': {
-        'compass': true,
-        'myLocationButton': true,
-        'indoorPicker': true,
-      },
-      'gestures': {
-        'scroll': true,
-        'tilt': true,
-        'rotate': true,
-        'zoom': true
-      }
-    });
-
-    console.log("Getting location");
-    let loader = this.loadingCtrl.create({
-      content: "Getting location ... please wait."
-    });
-
+    let loader = this.loadingCtrl.create({ content: "Getting location ... please wait." });
     loader.present();
-    this.map.on(GoogleMapsEvent.MAP_READY).subscribe(() => {
-        	this.map.getMyLocation().then((location) => {
-	            console.log("Map Ready, location is ");
-	            console.log(location);
-	            this.myLocation = location;
-
-
-	            
-	            
-/////////////// MAP READY /////////////////////
-
-	            this.showMap();
-	            this.addListeners();
-	            //this.placeMarkers();
-
-
-
-
-        // constructor passing in this DIV.
-
-
-
-
-	            loader.dismiss();
-        	}, (err) => {
-                loader.dismiss();
-                console.log(err);
-                alert(err.error_message);
-          });
-    }, (err) => {
-            loader.dismiss();
-            console.log("Error in MAP_READY event");
-            console.log(err);
-            alert(err.error_message);
-      });
-                loader.dismiss();
-
-
+    this.map.getMyLocation().then((location) => {
+        console.log("HomePage | getMyLocation | Location is ", location);
+        this.myLocation = location;
+        this.mapRendered=true;
+        let position : CameraPosition = { target: location.latLng, zoom: 15 };
+        this.map.moveCamera(position);
+        loader.dismiss();
+  	}, (err) => {
+          loader.dismiss();
+          console.log(err);
+          alert(err.error_message);
+    });
    }
 
 
    getMapUID(){
-
+   		return this.mapUID;
    }
 
    promptAddMarker(mapClick){
    	this.disableMap();
    	let latLng = mapClick+"".toString();
-	let prompt = this.alertCtrl.create({
+	  let prompt = this.alertCtrl.create({
 		    title: 'Add marker',
 		    message: "Enter a name for this place ",
-		    inputs: [ 	{ name: 'title', 		placeholder: 'Title' },
-		    			{ name: 'description', 	placeholder: 'Description' } ],
+		    inputs: [ { name: 'title', 		placeholder: 'Title' },
+		    			    { name: 'description', 	placeholder: 'Description' } ],
 		    buttons: [ 	{ text: 'Cancel', 		handler: data => { console.log('Cancel clicked'); } },
 		      { text: 'Save', handler: data => {
-		        	this.markersProvider.addMarkerToMap(data, this.getMapUID());
-		        	
-		        	console.log(data);
-		          this.markerService.push({
-		            title: data.title,
-		            description: data.description,
-        			latLng: latLng
-		          });
-
-	
-					let markerOptions : MarkerOptions = {
-						'position': mapClick,
-						'icon':'blue',
-						'title': data.title,
-						'snippet': data.description
-					};
-					this.map.addMarker(markerOptions).then((marker: Marker) => {
-								marker.showInfoWindow();
-					})
-					this.enableMap();
+		        	this.markersProvider.addMarkerToMap(data, latLng, this.getMapUID(), this);
+					    this.enableMap();
 		        }
 		      }
 		    ]
@@ -266,20 +270,14 @@ ionViewDidLoad(){
 
 
 addListeners(){
-    this.map.on(GoogleMapsEvent.MAP_CLICK).subscribe((mapClick) => {
-      	console.log("Map clicked on : ", mapClick);
-		this.promptAddMarker(mapClick);
-	}, (err) => {
-		console.log(err);
-	});
+
+
 }
   
 
 
 
-/* Places all markers from /markers/global */
-placeMarkersGlobal(){
-
+/*placeMarkersGlobal(){
   	let myMarkers = this.af.database.ref('/markers/global');
   	var self = this;
   	myMarkers.once('value', function(snapshot) {
@@ -292,13 +290,8 @@ placeMarkersGlobal(){
 			'snippet': snapshot.val().description
 		}
 		self.map.addMarker(markerOptions);
-/*		.then((marker: Marker) => {
-			marker.showInfoWindow();
-		}, (err) => {
-			console.log(err)
-		});*/
 	});
-  }
+  }*/
 
 }
 

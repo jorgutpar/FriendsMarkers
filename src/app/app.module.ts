@@ -20,7 +20,6 @@ import { Facebook } from '@ionic-native/facebook'
 import { MapsProvider } from '../providers/maps';
 import { MarkersProvider } from '../providers/markers';
 import { AuthProvider } from '../providers/auth';
-import * as firebase from 'firebase'; 
 
 
 
