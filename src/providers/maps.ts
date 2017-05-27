@@ -82,7 +82,7 @@ getNameFromMapUID(mapSelectedUID, homePage){
 
 getMapsFromUser(alert, loader){
   loader.present();
-  console.log('Getting maps from user', this.authProvider.getCurrentUser());
+  console.log('Maps Provider | getMapsFromUser | Getting maps from user', this.authProvider.getCurrentUser());
   let myMaps = this.af.database.ref('/users/'+this.authProvider.getCurrentUser().uid+'/maps');
   let maps = this.af.database.ref('/maps/');
   myMaps.once('value', userMaps => {
@@ -95,8 +95,10 @@ getMapsFromUser(alert, loader){
         });
       })
     }
-  });
-  loader.dismiss();
+  }).then(() =>  {
+      alert.present();
+      loader.dismiss();
+  })
 }
 
 

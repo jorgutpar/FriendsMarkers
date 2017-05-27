@@ -36,66 +36,54 @@ getMarkersFromMap(mapSelectedUID, loader){
   console.log('Markers Provider | getMarkersFromMap | mapSelectedUID', mapSelectedUID);
   let markersFromMap = this.af.database.ref('/maps/'+ mapSelectedUID + '/markers');
   loader.present();
-  markersFromMap.once('child_added', marker => {
-            console.log('MarkersProvider | getPublicMarkers | marker --> ', marker.val());
-            let latlng = marker.val().latLng.toString().split(/, ?/)
-            let position: LatLng = new LatLng(latlng[0],latlng[1]);
-            let markerOptions : MarkerOptions = {
-              'position': position,
-              'icon':'blue',
-              'title': marker.val().title,
-              'snippet': marker.val().description
+  markersFromMap.once('value', marker => {
+            console.log('MarkersProvider | getPublicMarkers | marker --> ', marker);
+            console.log('MarkersProvider | getPublicMarkers | marker.val() --> ', marker.val());
+            let markers = marker.val();
+            for (var key in markers) {
+                var value = markers[key];
+                console.log(value)
+                if(value != null){
+                console.log('Markers Provider | Map ' + mapSelectedUID + ' | Marker ', value);
+
+
+
+                  let latlng = value.latLng.toString().split(/, ?/)
+                  let position: LatLng = new LatLng(latlng[0],latlng[1]);
+                  let markerOptions : MarkerOptions = {
+                    'position': position,
+                    'icon':'blue',
+                    'title': value.title,
+                    'snippet': value.description
+                  }
+                  MapsProvider.mapSaved.addMarker(markerOptions).then((marker: Marker) => {
+                  MapsProvider.markersArray.push(marker);
+                    marker.setVisible(true);
+                  });   
+
+              }
+
+
+
             }
-            MapsProvider.mapSaved.addMarker(markerOptions).then((marker: Marker) => {
-            MapsProvider.markersArray.push(marker);
-              console.log('MarkersProvider | getPublicMarkers | MapsProvider.markersArray ', MapsProvider.markersArray);
-              marker.setVisible(true);
-            });    
+
+
+
+
+ 
   }).then(() => {
     loader.dismiss();
+    console.log('MarkersProvider | getMarkersFromMap | MapsProvider.markersArray ', MapsProvider.markersArray);
   });
+
 }
 
-  load(){
-
-  }
 
 
-  addItem(){
-
-  }
-
-  editItem(){
-
-  }
-
-  getItem(id){
-
-  }
-
-  loadMarkersFromMap(mapUID){
-  }
 
 
-  getPublicMarkers(map) {
-    let publicMarkers = this.af.database.ref('/maps/public/markers');
-    publicMarkers.on('child_added', marker => {
-            console.log('MarkersProvider | getPublicMarkers | marker --> ', marker.val());
-            let latlng = marker.val().latLng.toString().split(/, ?/)
-            let position: LatLng = new LatLng(latlng[0],latlng[1]);
-            let markerOptions : MarkerOptions = {
-              'position': position,
-              'icon':'blue',
-              'title': marker.val().title,
-              'snippet': marker.val().description
-            }
-            MapsProvider.mapSaved.addMarker(markerOptions).then((marker: Marker) => {
-            MapsProvider.markersArray.push(marker);
-              console.log('MarkersProvider | getPublicMarkers | MapsProvider.markersArray ', MapsProvider.markersArray);
-              marker.setVisible(true);
-            });            
-    });
-  }
+
+
 
 
   addMarkerToMap(marker, latLng, mapUID){

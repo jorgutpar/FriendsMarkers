@@ -52,13 +52,11 @@ export class HomePage {
   	public mapsProvider : MapsProvider) {
 
     console.log('HomePage | Constructor | navParams.data', navParams.data)
-    	if(navParams.data.id){
-    		this.loadMarkersFromMap(navParams.data.id)	
-    	} else {
-        this.mapUID =  'public';
-    		this.loadPublicMarkers();	
-    	}
-    	this.userProfile = this.authProvider.getCurrentUser();
+    if(!navParams.data.id){
+      navParams.data.id = 'public'
+    }
+    this.loadMarkersFromMap(navParams.data.id)	
+    this.userProfile = this.authProvider.getCurrentUser();
   }
 
 
@@ -77,10 +75,8 @@ ionViewDidLoad(){
         console.log(err);
       });
       
-      this.map = MapsProvider.mapSaved;      
-      this.map.setOptions({ 'backgroundColor': 'white',  'controls': { 'compass': true,'myLocationButton': true,'indoorPicker': true, }, 'gestures': { 'scroll': true, 'tilt': true,  'rotate': true,  'zoom': true  }  });
+      MapsProvider.mapSaved.setOptions({ 'backgroundColor': 'white',  'controls': { 'compass': true,'myLocationButton': true,'indoorPicker': true, }, 'gestures': { 'scroll': true, 'tilt': true,  'rotate': true,  'zoom': true  }  });
       this.getMyLocation(); 
-      //this.addListeners();
   } else {
     console.log('HomePage | ionViewDidLoad | Map already initialized  ');
   }
@@ -101,14 +97,6 @@ clearMarkers(){
 
 
 
-loadPublicMarkers(){
-  console.log('HomePage | loadPublicMarkers init')
-  this.markersProvider.getPublicMarkers(this.map);
-}
-
-
-
-
 loadMarkersFromMap(mapSelectedUID){
 	this.disableMap();
   this.clearMarkers();
@@ -117,8 +105,8 @@ loadMarkersFromMap(mapSelectedUID){
     content: "Loading markers ... please wait."
   });
   loader.onDidDismiss(() => this.enableMap());
-	this.mapsProvider.getNameFromMapUID(mapSelectedUID, this);
-	console.log("Loading markers from map id ", mapSelectedUID);
+  this.mapsProvider.getNameFromMapUID(mapSelectedUID, this);
+  console.log("Loading markers from map id ", mapSelectedUID);
 	this.markersProvider.getMarkersFromMap(mapSelectedUID, loader);
   this.addListeners();
 }
@@ -131,22 +119,17 @@ selectMap(){
   alert.setTitle('Available Maps');
   alert.onDidDismiss(() => this.enableMap());
 	var loader = this.loadingCtrl.create();
+  loader.present();
  	alert.addInput({ type: 'radio', label: 'Public map', value: 'public', });
   this.mapsProvider.getMapsFromUser(alert, loader);
   alert.addButton('Cancel');
   alert.addButton({ text: 'OK',
     handler: data => {
       console.log('Data --> ', data);
-      if( data == 'public' ){
-      	console.log('Load public map', data);
-        this.mapName = "Public map"
-      } else {
-      	console.log('Loading map with id ', data);
-      	this.loadMarkersFromMap(data);
+      console.log('Loading map with id ', data);
+      this.loadMarkersFromMap(data);
       }
-    }
   });
-  alert.present();
 }
 
 
@@ -159,19 +142,19 @@ menuShowing(){
 disableMap(){
 	this.clickableMap = false;
   console.log("Map clickable? ",this.clickableMap)
-	this.map.setClickable(false);
+	MapsProvider.mapSaved.setClickable(false);
 }
 enableMap(){
 	this.clickableMap = true;
   console.log("Map clickable? ",this.clickableMap)
-	this.map.setClickable(true);
+	MapsProvider.mapSaved.setClickable(true);
 }
 
 
 toggleMapClick(){
   this.clickableMap = !this.clickableMap
   console.log("Map clickable? ",this.clickableMap)
-	this.map.setClickable(this.clickableMap);
+	MapsProvider.mapSaved.setClickable(this.clickableMap);
 }
 
 
@@ -183,23 +166,6 @@ fabController(ev, fab : FabContainer, fabButton : FabButton){
 }
 
 
-promptAddMap(){
-	this.disableMap();
-   	console.log("Adding Map ...");
-   	let prompt = this.alertCtrl.create({
-		    title: 'Add map',
-		    message: "Enter a name for the new map ",
-		    inputs: [{ name: 'name', placeholder: 'Name'},
-		    		{ name: 'description', placeholder: 'Description' } ],
-		    buttons: [{text: 'Cancel', handler: data => { console.log('promptAddMap | Cancel clicked');}},
-		      	{ text: 'Save', handler: (data) => { this.addMapToUser(data); } } ]
-	});
-
-
-
-	prompt.onDidDismiss(() => { this.enableMap();	})
-	prompt.present();
-}
 
 
 addMapToUser(map){
@@ -227,12 +193,12 @@ addMapToUser(map){
    getMyLocation(){
     let loader = this.loadingCtrl.create({ content: "Getting location ... please wait." });
     loader.present();
-    this.map.getMyLocation().then((location) => {
+    MapsProvider.mapSaved.getMyLocation().then((location) => {
         console.log("HomePage | getMyLocation | Location is ", location);
         this.myLocation = location;
         this.mapRendered=true;
         let position : CameraPosition = { target: location.latLng, zoom: 15 };
-        this.map.moveCamera(position);
+        MapsProvider.mapSaved.moveCamera(position);
         loader.dismiss();
   	}, (err) => {
           loader.dismiss();
@@ -246,25 +212,22 @@ addMapToUser(map){
    		return this.mapUID;
    }
 
-   promptAddMarker(mapClick){
-   	this.disableMap();
+  promptAddMarker(mapClick){
+    console.log('HomePage | promptAddMarker | Init ')
+    console.log('HomePage | promptAddMarker | mapClick ', mapClick)
    	let latLng = mapClick+"".toString();
 	  let prompt = this.alertCtrl.create({
 		    title: 'Add marker',
-		    message: "Enter a name for this place ",
-		    inputs: [ { name: 'title', 		placeholder: 'Title' },
-		    			    { name: 'description', 	placeholder: 'Description' } ],
-		    buttons: [ 	{ text: 'Cancel', 		handler: data => { console.log('Cancel clicked'); } },
+		    message: 'Enter a name for this place',
+		    inputs: [ { name: 'title', 		  placeholder: 'Title' },
+		    			    { name: 'description',placeholder: 'Description' }],
+		    buttons: [{ text: 'Cancel', handler: data => console.log('HomePage | promptAddMarker | Cancel add marker')},
 		      { text: 'Save', handler: data => {
-		        	this.markersProvider.addMarkerToMap(data, latLng, this.getMapUID(), this);
-					    this.enableMap();
-		        }
-		      }
-		    ]
+		        	this.markersProvider.addMarkerToMap(data, latLng, this.getMapUID());
+		      }}]
 		  });
-
-		prompt.onDidDismiss(() => { this.enableMap();	})
-		prompt.present();
+		prompt.onDidDismiss(() => this.enableMap())
+		prompt.present().then(() => this.disableMap());
    }
 
 
@@ -276,6 +239,20 @@ addListeners(){
   
 
 
+promptAddMap(){
+  this.disableMap();
+  console.log("HomePage | promptAddMap | Init ");
+  let prompt = this.alertCtrl.create({
+    title: 'Add map',
+    message: "Enter a name for the new map ",
+    inputs: [ { name: 'name', placeholder: 'Name'},
+              { name: 'description', placeholder: 'Description' } ],
+    buttons: [{text: 'Cancel', handler: data => { console.log('HomePage | promptAddMap | Cancel add map');}},
+              {text: 'Save',   handler: data => {this.addMapToUser(data)}}]
+  });
+  prompt.onDidDismiss(() => {this.enableMap()})
+  prompt.present()
+}
 
 /*placeMarkersGlobal(){
   	let myMarkers = this.af.database.ref('/markers/global');
