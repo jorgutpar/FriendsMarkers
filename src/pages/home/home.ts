@@ -18,7 +18,6 @@ import { GoogleMaps, GoogleMap, GoogleMapsEvent, LatLng, CameraPosition, MarkerO
 })
 export class HomePage {
 	
-	public map : GoogleMap;	
 	public mapRendered: Boolean = false;
   public location: LatLng;
   public myLocation: MyLocation;
@@ -63,9 +62,6 @@ export class HomePage {
 ionViewDidLoad(){ 
 
   console.log('HomePage | ionViewDidLoad');
-  console.log('HomePage | ionViewDidLoad | this.map', this.map);
-
-  if(!this.map){
       console.log('HomePage | ionViewDidLoad | this.map is null!! ');
       MapsProvider.mapSaved.setDiv(document.getElementById('map'));
       MapsProvider.mapSaved.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((mapClick) => {
@@ -76,10 +72,9 @@ ionViewDidLoad(){
       });
       
       MapsProvider.mapSaved.setOptions({ 'backgroundColor': 'white',  'controls': { 'compass': true,'myLocationButton': true,'indoorPicker': true, }, 'gestures': { 'scroll': true, 'tilt': true,  'rotate': true,  'zoom': true  }  });
+
+
       this.getMyLocation(); 
-  } else {
-    console.log('HomePage | ionViewDidLoad | Map already initialized  ');
-  }
 
 }
 
@@ -89,8 +84,12 @@ clearMarkers(){
     let marker : Marker = MapsProvider.markersArray[i];
     marker.remove();
   }
-  MapsProvider.markersArray.length = 0;
 }
+
+refresh(){
+  this.markersProvider.placeMarkersFromArray();
+}
+
 
 
 
@@ -99,7 +98,7 @@ clearMarkers(){
 
 loadMarkersFromMap(mapSelectedUID){
 	this.disableMap();
-  this.clearMarkers();
+  MapsProvider.mapSaved.clear();
 	this.mapUID = mapSelectedUID;
 	var loader = this.loadingCtrl.create({
     content: "Loading markers ... please wait."
@@ -108,7 +107,6 @@ loadMarkersFromMap(mapSelectedUID){
   this.mapsProvider.getNameFromMapUID(mapSelectedUID, this);
   console.log("Loading markers from map id ", mapSelectedUID);
 	this.markersProvider.getMarkersFromMap(mapSelectedUID, loader);
-  this.addListeners();
 }
 
 
@@ -168,24 +166,6 @@ fabController(ev, fab : FabContainer, fabButton : FabButton){
 
 
 
-addMapToUser(map){
-	console.log('Add map to user',map);
-	this.mapsProvider.addMapToUser(map);
-}
-
-
-
-
-
-  showMap(){
-    this.mapRendered=true;
-    let position : CameraPosition = {
-      target: this.myLocation.latLng,
-      zoom: 15
-    };
-    this.map.moveCamera(position);
-  }
-
 
 
 
@@ -212,31 +192,6 @@ addMapToUser(map){
    		return this.mapUID;
    }
 
-  promptAddMarker(mapClick){
-    console.log('HomePage | promptAddMarker | Init ')
-    console.log('HomePage | promptAddMarker | mapClick ', mapClick)
-   	let latLng = mapClick+"".toString();
-	  let prompt = this.alertCtrl.create({
-		    title: 'Add marker',
-		    message: 'Enter a name for this place',
-		    inputs: [ { name: 'title', 		  placeholder: 'Title' },
-		    			    { name: 'description',placeholder: 'Description' }],
-		    buttons: [{ text: 'Cancel', handler: data => console.log('HomePage | promptAddMarker | Cancel add marker')},
-		      { text: 'Save', handler: data => {
-		        	this.markersProvider.addMarkerToMap(data, latLng, this.getMapUID());
-		      }}]
-		  });
-		prompt.onDidDismiss(() => this.enableMap())
-		prompt.present().then(() => this.disableMap());
-   }
-
-
-
-addListeners(){
-
-
-}
-  
 
 
 promptAddMap(){
@@ -248,27 +203,35 @@ promptAddMap(){
     inputs: [ { name: 'name', placeholder: 'Name'},
               { name: 'description', placeholder: 'Description' } ],
     buttons: [{text: 'Cancel', handler: data => { console.log('HomePage | promptAddMap | Cancel add map');}},
-              {text: 'Save',   handler: data => {this.addMapToUser(data)}}]
+              {text: 'Save',   handler: data => {  this.mapsProvider.addMapToUser(data)}}]
   });
   prompt.onDidDismiss(() => {this.enableMap()})
   prompt.present()
 }
 
-/*placeMarkersGlobal(){
-  	let myMarkers = this.af.database.ref('/markers/global');
-  	var self = this;
-  	myMarkers.once('value', function(snapshot) {
-		let latlng = snapshot.val().latLng.toString().split(/, ?/)
-		let position: LatLng = new LatLng(latlng[0],latlng[1]);
-		let markerOptions : MarkerOptions = {
-			'position': position,
-			'icon':'blue',
-			'title': snapshot.val().title,
-			'snippet': snapshot.val().description
-		}
-		self.map.addMarker(markerOptions);
-	});
-  }*/
+
+
+
+  promptAddMarker(mapClick){
+    console.log('HomePage | promptAddMarker | Init ')
+    console.log('HomePage | promptAddMarker | mapClick ', mapClick)
+    let prompt = this.alertCtrl.create({
+        title: 'Add marker',
+        message: 'Enter a name for this place',
+        inputs: [ { name: 'title',       placeholder: 'Title' },
+                  { name: 'description',placeholder: 'Description' }],
+        buttons: [{ text: 'Cancel', handler: data => console.log('HomePage | promptAddMarker | Cancel add marker')},
+          { text: 'Save', handler: data => {
+              this.markersProvider.addMarkerToMap(data, mapClick+"".toString(), this.getMapUID());
+          }}]
+      });
+    prompt.onDidDismiss(() => this.enableMap())
+    prompt.present().then(() => this.disableMap());
+   }
+
+  
+
+
 
 }
 

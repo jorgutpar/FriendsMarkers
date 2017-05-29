@@ -18,7 +18,6 @@ export class MapsProvider {
 
   public currentUser : any;
   public mapsRef : any;
-  public map : GoogleMap;
   public static mapSaved : GoogleMap;
   public static markersArray = [];
   public homePage : HomePage;
@@ -31,14 +30,13 @@ export class MapsProvider {
       this.mapsRef = this.af.database.ref('/maps');
       this.currentUser = authProvider.getCurrentUser();
       console.log('Maps Provider | Constructor | this.currentUser ', this.currentUser);
-      this.map = new GoogleMap('map');
+      MapsProvider.mapSaved = new GoogleMap('map');
 
 
 
-      this.map.one(GoogleMapsEvent.MAP_READY).then(callback => {
-        console.log('Maps Provider | Constructor | MAP_READY', this.map);
+      MapsProvider.mapSaved.one(GoogleMapsEvent.MAP_READY).then(callback => {
+        console.log('Maps Provider | Constructor | MAP_READY', MapsProvider.mapSaved);
         console.log('Maps Provider | Constructor | callback', callback);
-        MapsProvider.mapSaved = this.map;
       });
 
 

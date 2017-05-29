@@ -29,42 +29,44 @@ export class MarkersProvider {
     this.currentUser = authProvider.getCurrentUser();
     console.log('Markers Provider | Constructor ');
     console.log('Markers Provider | this.currentUser ', this.currentUser);
+
+
+
+
+
+
+
+
   }
 
 
 getMarkersFromMap(mapSelectedUID, loader){
+  MapsProvider.mapSaved.clear();
+  MapsProvider.markersArray.length = 0;
   console.log('Markers Provider | getMarkersFromMap | mapSelectedUID', mapSelectedUID);
   let markersFromMap = this.af.database.ref('/maps/'+ mapSelectedUID + '/markers');
   loader.present();
   markersFromMap.once('value', marker => {
-            console.log('MarkersProvider | getPublicMarkers | marker --> ', marker);
-            console.log('MarkersProvider | getPublicMarkers | marker.val() --> ', marker.val());
             let markers = marker.val();
             for (var key in markers) {
                 var value = markers[key];
                 console.log(value)
                 if(value != null){
-                console.log('Markers Provider | Map ' + mapSelectedUID + ' | Marker ', value);
-
-
-
-                  let latlng = value.latLng.toString().split(/, ?/)
-                  let position: LatLng = new LatLng(latlng[0],latlng[1]);
+                  console.log('Markers Provider | Map ' + mapSelectedUID + ' | Marker ', value);
+                  let position: LatLng = new LatLng(value.latLng.lat, value.latLng.lng);
                   let markerOptions : MarkerOptions = {
                     'position': position,
                     'icon':'blue',
                     'title': value.title,
                     'snippet': value.description
                   }
-                  MapsProvider.mapSaved.addMarker(markerOptions).then((marker: Marker) => {
-                  MapsProvider.markersArray.push(marker);
+                  MapsProvider.mapSaved.addMarker(markerOptions)
+                  .then((marker: Marker) => {
+                    console.log('Markers Provider | getMarkersFromMap '+ mapSelectedUID + ' | MARKER ADDED!!', marker, markerOptions);
+                    MapsProvider.markersArray.push(markerOptions);
                     marker.setVisible(true);
                   });   
-
               }
-
-
-
             }
 
 
@@ -82,39 +84,68 @@ getMarkersFromMap(mapSelectedUID, loader){
 
 
 
-
-
-
-
-  addMarkerToMap(marker, latLng, mapUID){
-     console.log('Markers Provider | addMarkerToMap ')
-    if(mapUID == 'public'){
-      let publicMarkers = this.af.database.ref('/maps/public/markers');
-      publicMarkers.push({
-        title: marker.title,
-        description: marker.description,
-        latLng: latLng
-      })
-    }else{
-      let mapMarkers = this.af.database.ref('/maps/'+ mapUID + '/markers');
-      mapMarkers.push({
-        title: marker.title,
-        description: marker.description,
-        latLng: latLng
-      });
+placeMarkersFromArray(){
+  MapsProvider.mapSaved.clear();
+  for(var key in MapsProvider.markersArray){
+    var value = MapsProvider.markersArray[key];
+    console.log('Markers Provider | placeMarkersFromArray | marker loop', value);
+    if(value != null){
+        MapsProvider.mapSaved.addMarker(value);
     }
+  }
+}
 
+
+
+  addMarkerToMap(marker, mapClick, mapUID){
+    console.log('Markers Provider | addMarkerToMap ')
+    let latlng = mapClick.toString().split(/, ?/)
+    let position: LatLng = new LatLng(latlng[0],latlng[1]);
     let markerOptions : MarkerOptions = {
-      'position': latLng,
+      'position': position,
       'icon':'blue',
       'title': marker.title,
       'snippet': marker.description
     };
-    MapsProvider.mapSaved.addMarker(markerOptions).then((marker: Marker) => {
-      MapsProvider.markersArray.push(marker);
-      marker.setVisible(true);
-      marker.showInfoWindow();
-    })
+
+    let mapMarkers = this.af.database.ref('/maps/'+ mapUID + '/markers');
+    mapMarkers.push({
+      title: marker.title,
+      description: marker.description,
+      latLng: position
+    }).then(() => {
+
+
+       MapsProvider.mapSaved.addMarker(markerOptions)
+        .then((marker: Marker) => {
+          console.log('Markers Provider | getMarkersFromMap '+ mapUID + ' | MARKER ADDED!!', marker, markerOptions);
+          marker.setVisible(true);
+          marker.showInfoWindow();
+        })
+        .catch(error => {
+          console.error('Error adding Marker!', error)
+        }); 
+        MapsProvider.markersArray.push(markerOptions);
+
+
+    });
+
+
+ 
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
   }
 
 
