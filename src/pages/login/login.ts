@@ -102,8 +102,6 @@ insertMapFromUser(){
   //this.initProfile();
 
   let maps = this.af.database.ref('/maps/');
-  let myMaps = this.af.database.ref('/users/'+this.userProfile.uid+'/maps');
-  
 
   maps.push({
       name: 'Mapa para mis amigos',
@@ -130,63 +128,16 @@ addMapToUser(snapshot){
   userMaps.child(snapshot.key).set(true);
 }
 
-
-
-/*  myMaps.on('child_added', snapshot => {
-    console.log('New child_added to maps | Snapshot --> ', snapshot);
-    console.log('Snapshot.val() -->', snapshot.val());
-
-  });*/
-
-/*  maps2.child(''+this.userProfile.uid).push({
-      name: 'Mapa para mis amigos',
-      description: "Es la hostia",
-      owner: this.userProfile.email,
-      password: false
-  }).catch(error => {
-      console.log("Error adding new map on user ", error);
-  });*/
-/*  maps.push({ 
-      name: 'Mapa para mis amigos',
-      description: "Es la hostia",
-      owner: this.userProfile.email,
-      password: false
-  }).catch(error => {
-      console.log("Error adding new map on user ", error);
-  });*/
-
-
-
-////// LISTENERS  /////////////
-
-  // child_added //
-/*  myMaps.on('child_added', snapshot => {
-    console.log('New child_added to maps | Snapshot --> ', snapshot);
-    console.log('Snapshot.val() -->', snapshot.val());
-*/
-/*    this.mapsService.push({  
-      name: snapshot.val().name,
-      description: snapshot.val().description,
-      owner: this.userProfile.email
-    }).catch(error => {
-        console.log("Error inserting new map", error);
-    });*/
-  /*});
-*/
-
-
 loadMyMaps(){
   let myMaps = this.af.database.ref('/users/'+this.userProfile.uid+'/maps');
-  var key = myMaps.push().key;
-  var self = this;
   myMaps.push({  
       name: 'Mapa para mis amigos',
       description: "Es la hostia",
       owner: this.userProfile.email
-    }).key;
-////// LISTENERS  /////////////
+    });
 
-  // child_added //
+
+
   myMaps.on('child_added', snapshot => {
     console.log('New child_added to maps | Snapshot --> ', snapshot);
     console.log('Snapshot.val() -->', snapshot.val());

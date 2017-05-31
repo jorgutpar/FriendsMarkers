@@ -21,6 +21,7 @@ import { MapsProvider } from '../providers/maps';
 import { MarkersProvider } from '../providers/markers';
 import { AuthProvider } from '../providers/auth';
 
+import {ColorPickerModule} from 'angular2-color-picker';
 
 
 
@@ -54,6 +55,7 @@ export const firebaseConfig = {
   ],
   imports: [
     BrowserModule,
+    ColorPickerModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     IonicModule.forRoot(MyApp),

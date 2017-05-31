@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
-import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
-import firebase from 'firebase';
 import { AuthProvider } from './auth'
-import { HomePage } from '../pages/home/home';
 import { GoogleMap, GoogleMapsEvent } from '@ionic-native/google-maps';
 
 /*
@@ -20,7 +18,7 @@ export class MapsProvider {
   public mapsRef : any;
   public static mapSaved : GoogleMap;
   public static markersArray = [];
-  public homePage : HomePage;
+  public static mapUID : any;
 
 
   constructor(public af : AngularFireDatabase, 
@@ -44,9 +42,6 @@ export class MapsProvider {
 
   }
 
-  load(){
-  }
-
 
   addItem(item){
     console.log("Adding new map", item)
@@ -59,14 +54,7 @@ export class MapsProvider {
      });
 }
 
-  editItem(){
 
-  }
-
-  getItem(id){
-    let myMaps = this.af.database.ref('/users/'+this.currentUser.email+'/maps');
-
-  }
 
 
 getNameFromMapUID(mapSelectedUID, homePage){

@@ -1,6 +1,6 @@
 import { Component,NgZone } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
 import firebase from 'firebase';
 import { HomePage } from '../home/home';
 /**

@@ -1,13 +1,13 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, Platform, FabContainer, FabButton } from 'ionic-angular';
 import { AlertController, LoadingController, ActionSheetController, ToastController } from 'ionic-angular';
-import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { MapsProvider } from '../../providers/maps';
 import { MarkersProvider } from '../../providers/markers';
 import { AuthProvider } from '../../providers/auth';
 
-import { GoogleMaps, GoogleMap, GoogleMapsEvent, LatLng, CameraPosition, MarkerOptions, MyLocation, Marker, GroundOverlay } from '@ionic-native/google-maps';
+import { GoogleMaps, GoogleMapsEvent, LatLng, CameraPosition, MyLocation, Marker } from '@ionic-native/google-maps';
 
 
 
@@ -21,19 +21,10 @@ export class HomePage {
 	public mapRendered: Boolean = false;
   public location: LatLng;
   public myLocation: MyLocation;
-	markerService: any;
-	clickableMap : any = true;
-	public database : any;
-	public keys : string[];
+	public clickableMap : any = true;
 	public db : any;
-  	public user;
-  	public userProfile : any = null;
-  	public fabContainer : FabContainer;
-    public fabButton : FabButton
-    public overlay : GroundOverlay;
-
-  public static mapSaved : any;
-  	public mapUID : any
+  public fabContainer : FabContainer;
+  public fabButton : FabButton
 	public mapName : string = "Public Map";
 
   constructor(public navCtrl: NavController, 
@@ -50,31 +41,41 @@ export class HomePage {
   	public authProvider : AuthProvider,
   	public mapsProvider : MapsProvider) {
 
+    MapsProvider.mapSaved.setOptions({ 
+        'backgroundColor': 'white',
+        'controls': { 
+          'compass': true,
+          'myLocationButton': true,
+          'indoorPicker': true
+        },
+        'gestures': { 
+          'scroll': true,
+          'tilt': true, 
+          'rotate': true,
+          'zoom': true  
+        }
+      });
+
+
     console.log('HomePage | Constructor | navParams.data', navParams.data)
     if(!navParams.data.id){
       navParams.data.id = 'public'
+      MapsProvider.mapUID = 'public'
     }
     this.loadMarkersFromMap(navParams.data.id)	
-    this.userProfile = this.authProvider.getCurrentUser();
   }
 
 
 ionViewDidLoad(){ 
 
   console.log('HomePage | ionViewDidLoad');
-      console.log('HomePage | ionViewDidLoad | this.map is null!! ');
-      MapsProvider.mapSaved.setDiv(document.getElementById('map'));
-      MapsProvider.mapSaved.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((mapClick) => {
-        console.log("Map clicked on : ", mapClick);
-        this.promptAddMarker(mapClick);
-      }, (err) => {
-        console.log(err);
-      });
-      
-      MapsProvider.mapSaved.setOptions({ 'backgroundColor': 'white',  'controls': { 'compass': true,'myLocationButton': true,'indoorPicker': true, }, 'gestures': { 'scroll': true, 'tilt': true,  'rotate': true,  'zoom': true  }  });
-
-
-      this.getMyLocation(); 
+  console.log('HomePage | ionViewDidLoad | this.map is null!! ');
+  MapsProvider.mapSaved.setDiv(document.getElementById('map'));
+  MapsProvider.mapSaved.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe(
+    (mapClick) => {this.promptAddMarker(mapClick);}, 
+    (err) => { console.log(err); 
+  });
+  this.getLocationAndMoveCamera(); 
 
 }
 
@@ -98,15 +99,12 @@ refresh(){
 
 loadMarkersFromMap(mapSelectedUID){
 	this.disableMap();
-  MapsProvider.mapSaved.clear();
-	this.mapUID = mapSelectedUID;
-	var loader = this.loadingCtrl.create({
-    content: "Loading markers ... please wait."
-  });
-  loader.onDidDismiss(() => this.enableMap());
+  MapsProvider.mapUID = mapSelectedUID;
   this.mapsProvider.getNameFromMapUID(mapSelectedUID, this);
   console.log("Loading markers from map id ", mapSelectedUID);
-	this.markersProvider.getMarkersFromMap(mapSelectedUID, loader);
+  let loader = this.loadingCtrl.create();
+  loader.present()
+	this.markersProvider.getMarkersFromMap(loader);
 }
 
 
@@ -156,12 +154,6 @@ toggleMapClick(){
 }
 
 
-fabController(ev, fab : FabContainer, fabButton : FabButton){
-	//this.toggleMapClick();
-  console.log(fab);
-  console.log(fabButton);
-
-}
 
 
 
@@ -169,14 +161,11 @@ fabController(ev, fab : FabContainer, fabButton : FabButton){
 
 
 
-
-   getMyLocation(){
+   getLocationAndMoveCamera(){
     let loader = this.loadingCtrl.create({ content: "Getting location ... please wait." });
     loader.present();
     MapsProvider.mapSaved.getMyLocation().then((location) => {
-        console.log("HomePage | getMyLocation | Location is ", location);
-        this.myLocation = location;
-        this.mapRendered=true;
+        console.log("getMyLocation | Location is ", location);
         let position : CameraPosition = { target: location.latLng, zoom: 15 };
         MapsProvider.mapSaved.moveCamera(position);
         loader.dismiss();
@@ -188,9 +177,6 @@ fabController(ev, fab : FabContainer, fabButton : FabButton){
    }
 
 
-   getMapUID(){
-   		return this.mapUID;
-   }
 
 
 
@@ -218,11 +204,10 @@ promptAddMap(){
     let prompt = this.alertCtrl.create({
         title: 'Add marker',
         message: 'Enter a name for this place',
-        inputs: [ { name: 'title',       placeholder: 'Title' },
-                  { name: 'description',placeholder: 'Description' }],
+        inputs: [ { name: 'title',       placeholder: 'Title' }],
         buttons: [{ text: 'Cancel', handler: data => console.log('HomePage | promptAddMarker | Cancel add marker')},
           { text: 'Save', handler: data => {
-              this.markersProvider.addMarkerToMap(data, mapClick+"".toString(), this.getMapUID());
+              this.markersProvider.addMarkerToMap(data, mapClick+"".toString());
           }}]
       });
     prompt.onDidDismiss(() => this.enableMap())

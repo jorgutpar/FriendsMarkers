@@ -106,7 +106,7 @@ removeSong(songId: string){
 
 
 
-ionic plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw" --variable API_KEY_FOR_IOS="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw"
+ionic cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw" --variable API_KEY_FOR_IOS="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw"
 
 
 

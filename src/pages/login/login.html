@@ -55,6 +55,15 @@
         <ion-icon name="logo-facebook" item-start></ion-icon>
         <span id="separeted-label">Facebook login</span>
     </button>
+
+
+<input [(colorPicker)]="color" 
+       [style.background]="color" 
+       [cpAlphaChannel]="'hex8'"
+       [cpOutputFormat]="'rgba'"
+       [value]="color"/>
+
+    
 <!-- <ion-grid>
   <ion-row row-12>
 
