@@ -56,14 +56,12 @@
         <span id="separeted-label">Facebook login</span>
     </button>
 
+<color-picker 
+    [(ngModel)]="color"
+    [availableColors]="availableColors"
+    [pickerConfig]="pickerOptions">
+</color-picker>
 
-<input [(colorPicker)]="color" 
-       [style.background]="color" 
-       [cpAlphaChannel]="'hex8'"
-       [cpOutputFormat]="'rgba'"
-       [value]="color"/>
-
-    
 <!-- <ion-grid>
   <ion-row row-12>
 

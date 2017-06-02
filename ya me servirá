@@ -1,113 +1,14 @@
 ya me servirá 
 
 
-updateSong(songId, songTitle){
-  let prompt = this.alertCtrl.create({
-    title: 'Song Name',
-    message: "Update the name for this song",
-    inputs: [
-      {
-        name: 'title',
-        placeholder: 'Title',
-        value: songTitle
-      },
-    ],
-    buttons: [
-      {
-        text: 'Cancel',
-        handler: data => {
-          console.log('Cancel clicked');
-        }
-      },
-      {
-        text: 'Save',
-        handler: data => {
-          this.songs.update(songId, {
-            title: data.title
-          });
-        }
-      }
-    ]
-  });
-  prompt.present();
-}
 
 
-  showOptions(songId, songTitle) {
-  let actionSheet = this.actionSheetCtrl.create({
-    title: 'What do you want to do?',
-    buttons: [
-      {
-        text: 'Delete Song',
-        role: 'destructive',
-        handler: () => {
-          this.removeSong(songId);
-        }
-      },{
-        text: 'Update title',
-        handler: () => {
-          this.updateSong(songId, songTitle);
-        }
-      },{
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => {
-          console.log('Cancel clicked');
-        }
-      }
-    ]
-  });
-  actionSheet.present();
-}
-
-
-  addSong(){
-  let prompt = this.alertCtrl.create({
-    title: 'Song Name',
-    message: "Enter a name for this new song you're so keen on adding",
-    inputs: [
-      {
-        name: 'title',
-        placeholder: 'Title'
-      },
-    ],
-    buttons: [
-      {
-        text: 'Cancel',
-        handler: data => {
-          console.log('Cancel clicked');
-        }
-      },
-      {
-        text: 'Save',
-        handler: data => {
-          this.songs.push({
-            title: data.title
-          });
-        }
-      }
-    ]
-  });
-  prompt.present();
-}
-
-
-removeSong(songId: string){
-  this.songs.remove(songId);
-}
-
-
-
-
-
-
-
-
+ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="1687036631599820" --variable APP_NAME="FriendsMarkers"
 
 
 
 ionic cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw" --variable API_KEY_FOR_IOS="AIzaSyBZ_UnLFoBWH_rldW7CEKzu39I1H1MRxbw"
-
+npm install --save @ionic-native/google-maps
 
 
 $ PATH=$PATH:$JAVA_HOME"\bin"
@@ -140,3 +41,8 @@ keytool -exportcert -alias androiddebugkey -keystore ~/.android\debug.keystore |
 
 
 cordova plugin add cordova-plugin-googleplus --save --variable REVERSED_CLIENT_ID=563992372693-9nshfv0ej44nm6guoqur7rks56ctop3d.apps.googleusercontent.com
+npm install -g cordova-plugin-googleplus
+
+
+ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="1687036631599820" --variable APP_NAME="FriendsMarkers"
+npm install cordova-plugin-facebook4

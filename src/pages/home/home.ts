@@ -7,8 +7,7 @@ import { MapsProvider } from '../../providers/maps';
 import { MarkersProvider } from '../../providers/markers';
 import { AuthProvider } from '../../providers/auth';
 
-import { GoogleMaps, GoogleMapsEvent, LatLng, CameraPosition, MyLocation, Marker } from '@ionic-native/google-maps';
-
+import { GoogleMaps, GoogleMapsEvent, LatLng, CameraPosition, MyLocation, Marker} from '@ionic-native/google-maps';
 
 
 

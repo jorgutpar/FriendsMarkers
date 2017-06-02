@@ -17,11 +17,16 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthProvider } from 'angularfire2/auth';
 import { GoogleMaps }  from '@ionic-native/google-maps';
 import { Facebook } from '@ionic-native/facebook'
+import { } from '@ionic-native/facebook'
+
 import { MapsProvider } from '../providers/maps';
 import { MarkersProvider } from '../providers/markers';
 import { AuthProvider } from '../providers/auth';
 
-import {ColorPickerModule} from 'angular2-color-picker';
+import { ColorPickerModule } from 'ng2-color-picker';
+import {  } from 'angular2-color-picker';
+
+//import { ColorPickerModule } from 'angular2-color-picker';
 
 
 

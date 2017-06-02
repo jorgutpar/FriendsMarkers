@@ -9,16 +9,8 @@ import { FirebaseListObservable, AngularFireDatabase } from 'angularfire2/databa
 import { ListPage } from '../list/list';
 import { MarkersProvider } from '../../providers/markers';
 import { AuthProvider } from '../../providers/auth';
+import { ColorPickerConfiguration } from 'ng2-color-picker';
 
-
-class Map {
-    public key : any;
-    public name: any;
-    public description: any;
-    public owner: any;
-    public password: any;
-    public users: any[] = [];
-}
 
 @Component({
   selector: 'page-login',
@@ -30,6 +22,9 @@ export class Login {
   public zone: NgZone;
   public options : any = [ 'myMaps', 'myMarkers'];
   mapsService: FirebaseListObservable<any>;
+  public color : '#ff0000';
+  public availableColors : any = [];
+  public pickerOptions : any = "{    width: 50px; height: 50px; borderRadius: 5px;}";
 
   constructor(public navController : NavController,
               public afAuth: AngularFireAuth,
@@ -71,8 +66,12 @@ optionSelected(item){
 }
 
 ionViewDidLoad(){ 
-  console.log("userProfile");  
-  console.log(this.userProfile);
+
+  console.log("color", this.color);
+  console.log("pickerOptions", this.pickerOptions);
+  this.availableColors.push('#d43710')
+  this.availableColors.push('#007ba7')
+
 }
 
 

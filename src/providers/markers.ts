@@ -6,8 +6,6 @@ import { HomePage } from '../pages/home/home';
 import { MarkerOptions, Marker, LatLng, GoogleMapsEvent } from '@ionic-native/google-maps';
 import { MapsProvider } from './maps'
 import { ActionSheetController, LoadingController } from 'ionic-angular'
-
-import { ColorPickerService } from 'angular2-color-picker';
 /*
   Generated class for the Markers provider.
 
@@ -27,13 +25,14 @@ export class MarkersProvider {
     public authProvider : AuthProvider,
     public mapsProvider : MapsProvider,
     public actionSheetCtrl: ActionSheetController,
-    public loadingCtrl : LoadingController,
-    public cpService: ColorPickerService ) {
+    public loadingCtrl : LoadingController ) {
     console.log('Hello Markers Provider');
 
     this.currentUser = authProvider.getCurrentUser();
     console.log('Markers Provider | Constructor ');
     console.log('Markers Provider | this.currentUser ', this.currentUser);
+
+
 
   }
 
@@ -60,7 +59,7 @@ getMarkersFromMap(loader){
         let position: LatLng = new LatLng(value.latLng.lat, value.latLng.lng);
         let markerOptions : MarkerOptions = {
           'position': position,
-          'icon':'blue',
+          'icon':'#ff0000',
           'title': value.title,
           'snippet': value.snippet
         }
@@ -89,12 +88,17 @@ addInfoListener(marker : Marker){
     actionSheet.onWillDismiss(() => MapsProvider.mapSaved.setClickable(true));
     actionSheet.onDidDismiss( () => MapsProvider.mapSaved.setClickable(true));
     actionSheet.addButton({ text: 'Remove', icon: 'trash', role: 'destructive', handler: () => { this.removeMarker(marker.get('key')) }  })
-    actionSheet.addButton({ text: 'Color', icon: 'color-palette', handler: () => { }  })
+    actionSheet.addButton({ text: 'Color', icon: 'color-palette', handler: () => { this.changeColor(marker.get('key')) }  })
     actionSheet.addButton({ text: 'Edit', icon: 'create', handler: () => { }  })
     actionSheet.addButton({ text: 'Cancel', icon: 'close', role: 'cancel', handler: () => { }  })
     MapsProvider.mapSaved.setClickable(false)
     actionSheet.present();
   });
+
+}
+
+changeColor(key){
+
 
 }
 
